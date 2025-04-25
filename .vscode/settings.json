@@ -1,0 +1,37 @@
+{	
+  "cmake.buildTask": true,
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": "googletest.failed",
+        "settings": {
+          "foreground": "#f00"
+        }
+      },
+      {
+        "scope": "googletest.passed",
+        "settings": {
+          "foreground": "#0f0"
+        }
+      },
+      {
+        "scope": "googletest.run",
+        "settings": {
+          "foreground": "#0f0"
+        }
+      }
+    ]
+  },
+  "gtest-adapter.debugConfig": [
+    "Debug: DESKTOP"
+  ],
+  "files.associations": {
+    "ostream": "cpp",
+    "qwidget": "cpp",
+    "qfiledialog": "cpp",
+    "qcombobox": "cpp",
+    "new": "cpp",
+    "qlabel": "cpp",
+    "qpushbutton": "cpp"
+  }
+}
