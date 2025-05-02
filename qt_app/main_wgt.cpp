@@ -63,6 +63,19 @@ Main_Wgt::Main_Wgt(QWidget* parent) : QWidget(parent)
 		hblayP->addWidget(btnModifyFileP);
 		vblayMainP->addLayout(hblayP);
 	}
+	{// layout 5:
+		auto* hblayP = new QHBoxLayout(this);
+		progressBarP = new QProgressBar;
+		progressBarP->setStyleSheet("QProgressBar{border: 1px solid transparent; text-align: center;"
+			"color:rgba(235, 235, 230, 1);"
+			"border-radius: 1px;"
+			"border-width: 2px;"
+			"background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(150, 150, 150, 1), stop:1 rgba(50, 50, 50, 1));}"
+			"QProgressBar::chunk {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgba(49, 59, 49, 1), stop: 1 rgba(61, 173, 61, 1));}");
+
+		hblayP->addWidget(progressBarP);
+		vblayMainP->addLayout(hblayP);
+	}
 	vblayMainP->addStretch();
 
 	connect(cmbboxFileMaskP, &QComboBox::activated, myLineEditP, &MyLineEdit::slotFileMode);
@@ -76,6 +89,14 @@ Main_Wgt::Main_Wgt(QWidget* parent) : QWidget(parent)
 	connect(timerFindFileP, &QTimer::timeout, this, &Main_Wgt::slotModifyFile);
 	timerModifyStatusP->setInterval(2000);
 	connect(timerModifyStatusP, &QTimer::timeout, this, &Main_Wgt::slotColorFile);
+	timerModifyProgressP->setInterval(20);
+	connect(timerModifyProgressP, &QTimer::timeout, this, &Main_Wgt::slotProgress);
+	timerModifyProgressP->setSingleShot(false);
+	timerModifyProgressP->start();
+	timerResetProgressP->setInterval(2000);
+	connect(timerResetProgressP, &QTimer::timeout, this, &Main_Wgt::slotResetProgressBar);
+
+	progressBarP->setMaximum(UINT16_MAX);
 }
 
 Main_Wgt::~Main_Wgt()
@@ -144,10 +165,14 @@ void Main_Wgt::slotModifyFile()
 	if(file.open(QIODevice::ReadWrite))
 	{
 		bAr = file.readAll();
-		for(size_t i = 0; i < bAr.size(); i++)
+		size_t size = bAr.size();
+		for(size_t i = 0; i < size; i++)
 		{
 			bAr[i] = bAr[i] ^ mask;
+			modifyProgress = size / 100 * i;
 		}
+		modifyProgress = UINT16_MAX;
+		timerResetProgressP->start();
 
 		if(cbxModifyFileNameP->isChecked())
 		{
@@ -220,4 +245,15 @@ void Main_Wgt::slotColorFile()
 	btnModifyFileP->setText("Modify");
 	btnModifyFileP->setStyleSheet("background-color: Gainsboro");
 	timerModifyStatusP->stop();
+}
+
+void Main_Wgt::slotProgress()
+{
+	progressBarP->setValue(modifyProgress);
+}
+
+void Main_Wgt::slotResetProgressBar()
+{
+	modifyProgress = 0;
+	timerResetProgressP->stop();
 }

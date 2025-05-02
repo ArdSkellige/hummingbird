@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QMap>
 #include <QPushButton>
+#include <QProgressBar>
 #include <QString>
 #include <QTimer>
 #include <QWidget>
@@ -20,6 +21,9 @@ private:
 	QMap<QString, uint8_t> mapFileNames;
 	QTimer *timerFindFileP = new QTimer(this);
 	QTimer *timerModifyStatusP = new QTimer(this);
+	QTimer *timerModifyProgressP = new QTimer(this);
+	QTimer *timerResetProgressP = new QTimer(this);
+	uint16_t modifyProgress = 0;
 protected:
 	// layout 1:
 	QLabel* lblMaskP;
@@ -39,6 +43,8 @@ protected:
 	QLabel* lblChooseFileP;
 	MyLineEdit* myLineEditP;
 	QPushButton* btnModifyFileP;
+	// layout 5:
+	QProgressBar* progressBarP;
 
 public:
 	Main_Wgt(QWidget* parent = nullptr);
@@ -56,5 +62,7 @@ public slots:
 	void slotModifyFile();
 	void slotTimerControl();
 	void slotColorFile();
+	void slotProgress();
+	void slotResetProgressBar();
 };
 #endif // MAIN_WGT_H
