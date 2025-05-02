@@ -16,9 +16,14 @@ Main_Wgt::Main_Wgt(QWidget* parent) : QWidget(parent)
 		auto* hblayP = new QHBoxLayout(this);
 		lblMaskP = createQLabel("File Mask");
 		cmbboxFileMaskP = createQComboBox();
+		lblDeleteFileP = createQLabel("Delete file");
+		cbxDeleteFileP = new QCheckBox();
+		cbxDeleteFileP->setChecked(false);
 
 		hblayP->addWidget(lblMaskP);
 		hblayP->addWidget(cmbboxFileMaskP);
+		hblayP->addWidget(lblDeleteFileP);
+		hblayP->addWidget(cbxDeleteFileP);
 		vblayMainP->addLayout(hblayP);
 	}
 	{// layout 2:
@@ -36,19 +41,20 @@ Main_Wgt::Main_Wgt(QWidget* parent) : QWidget(parent)
 		auto* hblayP = new QHBoxLayout(this);
 		lblChooseFileP = createQLabel("File");
 		myLineEditP = new MyLineEdit;
-		btnReadFileP = createPushButton("Modify");
+		btnModifyFileP = createPushButton("Modify");
 
 		hblayP->addWidget(lblChooseFileP);
 		hblayP->addWidget(myLineEditP);
-		hblayP->addWidget(btnReadFileP);
+		hblayP->addWidget(btnModifyFileP);
 		vblayMainP->addLayout(hblayP);
 	}
 	vblayMainP->addStretch();
 
 	connect(cmbboxFileMaskP, &QComboBox::activated, myLineEditP, &MyLineEdit::slotFileMode);
 	connect(myLineEditP, &MyLineEdit::signPath, this, &Main_Wgt::slotSetFilePath);
+	connect(ledMaskValueP, &QLineEdit::textChanged, this, &Main_Wgt::slotCheckRange);
 	connect(btnConfirmMaskP, &QPushButton::clicked, this, &Main_Wgt::slotWriteMask);
-	connect(btnReadFileP, &QPushButton::clicked, this, &Main_Wgt::slotBtnWorks);
+	connect(btnModifyFileP, &QPushButton::clicked, this, &Main_Wgt::slotModifyFile);
 }
 
 Main_Wgt::~Main_Wgt()
@@ -81,7 +87,7 @@ QPushButton* Main_Wgt::createPushButton(const char* str)
 QLineEdit* Main_Wgt::createQLineEdit()
 {
 	QLineEdit* tmpLEd = new QLineEdit();
-	QIntValidator* valid = new QIntValidator(0, UINT64_MAX);
+	QIntValidator* valid = new QIntValidator(0, 255);
 	tmpLEd->setValidator(valid);
 	return tmpLEd;
 }
@@ -94,11 +100,51 @@ void Main_Wgt::slotSetFilePath(QString path)
 	}
 }
 
-void Main_Wgt::slotWriteMask()
+void Main_Wgt::slotCheckRange(QString id)
 {
-	
+	QVariant variant(id);
+	int num = variant.toInt();
+	if(num > 255)
+	{
+		num = 255;
+		ledMaskValueP->setText(QString::number(num));
+	}
 }
 
-void Main_Wgt::slotBtnWorks()
+void Main_Wgt::slotWriteMask()
 {
+	mask = ledMaskValueP->text().toUInt();
+}
+
+void Main_Wgt::slotModifyFile()
+{
+	QByteArray bAr;
+	QFile file(myLineEditP->text());
+	qDebug() << "FILE NAME is " << file.fileName();
+	if(file.open(QIODevice::ReadWrite))
+	{
+		bAr = file.readAll();
+		for(size_t i = 0; i < bAr.size(); i++)
+		{
+			bAr[i] = bAr[i] ^ mask;
+		}
+
+		if(cbxDeleteFileP->isChecked())
+		{
+			file.remove();
+			QFile fileNew(QFileDialog::getSaveFileName(this, "Name file", "byteArray_list", "*.txt;; *.bin")); // save changed byteAr in file
+			if(fileNew.open(QIODevice::ReadWrite))
+			{
+				fileNew.resize(0);
+				fileNew.write(bAr);
+			}
+			fileNew.close();
+		}
+		else
+		{
+			file.resize(0);
+			file.write(bAr);
+			file.close();
+		}
+	}
 }

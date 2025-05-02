@@ -1,6 +1,7 @@
 #ifndef MAIN_WGT_H
 #define MAIN_WGT_H
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QLabel>
 #include <QPushButton>
@@ -13,12 +14,15 @@ class Main_Wgt : public QWidget
 {
 	Q_OBJECT
 private:
+	uint8_t mask = 0;
 	QTimer *timerFindFileP = new QTimer(this);
 
 protected:
 	// layout 1:
 	QLabel* lblMaskP;
 	QComboBox* cmbboxFileMaskP;
+	QLabel* lblDeleteFileP;
+	QCheckBox* cbxDeleteFileP;
 	// layout 2:
 	QLabel* lblMaskTitleP;
 	QLineEdit* ledMaskValueP;
@@ -26,7 +30,7 @@ protected:
 	// layout 3:
 	QLabel* lblChooseFileP;
 	MyLineEdit* myLineEditP;
-	QPushButton* btnReadFileP;
+	QPushButton* btnModifyFileP;
 
 public:
 	Main_Wgt(QWidget* parent = nullptr);
@@ -39,7 +43,8 @@ public:
 
 public slots:
 	void slotSetFilePath(QString path);
+	void slotCheckRange(QString id);
 	void slotWriteMask();
-	void slotBtnWorks();
+	void slotModifyFile();
 };
 #endif // MAIN_WGT_H
