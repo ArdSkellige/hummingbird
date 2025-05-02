@@ -19,20 +19,23 @@ private:
 	uint8_t mask = 0;
 	QMap<QString, uint8_t> mapFileNames;
 	QTimer *timerFindFileP = new QTimer(this);
-
+	QTimer *timerModifyStatusP = new QTimer(this);
 protected:
 	// layout 1:
 	QLabel* lblMaskP;
 	QComboBox* cmbboxFileMaskP;
+	// layout 2:
 	QLabel* lblDeleteFileP;
 	QCheckBox* cbxDeleteFileP;
 	QLabel* lblModifyFileNameP;
 	QCheckBox* cbxModifyFileNameP;
-	// layout 2:
+	QLabel* lblStartTimerP;
+	QCheckBox* cbxStartTimerP;
+	// layout 3:
 	QLabel* lblMaskTitleP;
 	QLineEdit* ledMaskValueP;
 	QPushButton* btnConfirmMaskP;
-	// layout 3:
+	// layout 4:
 	QLabel* lblChooseFileP;
 	MyLineEdit* myLineEditP;
 	QPushButton* btnModifyFileP;
@@ -51,5 +54,7 @@ public slots:
 	void slotCheckRange(QString id);
 	void slotWriteMask();
 	void slotModifyFile();
+	void slotTimerControl();
+	void slotColorFile();
 };
 #endif // MAIN_WGT_H

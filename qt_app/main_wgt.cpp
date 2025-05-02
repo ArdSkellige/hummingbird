@@ -7,7 +7,7 @@
 Main_Wgt::Main_Wgt(QWidget* parent) : QWidget(parent)
 {
 	setWindowTitle("Hummingbird");
-	this->setMinimumSize(350, 300);
+	this->setMinimumSize(400, 300);
 	
 	// create Main layout:
 	auto* vblayMainP = new QVBoxLayout(this);
@@ -16,22 +16,32 @@ Main_Wgt::Main_Wgt(QWidget* parent) : QWidget(parent)
 		auto* hblayP = new QHBoxLayout(this);
 		lblMaskP = createQLabel("File Mask");
 		cmbboxFileMaskP = createQComboBox();
+
+		hblayP->addWidget(lblMaskP);
+		hblayP->addWidget(cmbboxFileMaskP);
+		vblayMainP->addLayout(hblayP);
+	}
+	{// layout 2:
+		auto* hblayP = new QHBoxLayout(this);
 		lblDeleteFileP = createQLabel("Delete file");
 		cbxDeleteFileP = new QCheckBox();
 		cbxDeleteFileP->setChecked(false);
 		lblModifyFileNameP = createQLabel("Modify file Name");
 		cbxModifyFileNameP = new QCheckBox();
 		cbxModifyFileNameP->setChecked(false);
+		lblStartTimerP = createQLabel("Start timer");
+		cbxStartTimerP = new QCheckBox();
+		cbxStartTimerP->setChecked(false);
 
-		hblayP->addWidget(lblMaskP);
-		hblayP->addWidget(cmbboxFileMaskP);
 		hblayP->addWidget(lblDeleteFileP);
 		hblayP->addWidget(cbxDeleteFileP);
 		hblayP->addWidget(lblModifyFileNameP);
 		hblayP->addWidget(cbxModifyFileNameP);
+		hblayP->addWidget(lblStartTimerP);
+		hblayP->addWidget(cbxStartTimerP);
 		vblayMainP->addLayout(hblayP);
 	}
-	{// layout 2:
+	{// layout 3:
 		auto* hblayP = new QHBoxLayout(this);
 		lblMaskTitleP = createQLabel("Input Mask");;
 		ledMaskValueP = createQLineEdit();
@@ -42,7 +52,7 @@ Main_Wgt::Main_Wgt(QWidget* parent) : QWidget(parent)
 		hblayP->addWidget(btnConfirmMaskP);
 		vblayMainP->addLayout(hblayP);
 	}
-	{// layout 3:
+	{// layout 4:
 		auto* hblayP = new QHBoxLayout(this);
 		lblChooseFileP = createQLabel("File");
 		myLineEditP = new MyLineEdit;
@@ -56,10 +66,16 @@ Main_Wgt::Main_Wgt(QWidget* parent) : QWidget(parent)
 	vblayMainP->addStretch();
 
 	connect(cmbboxFileMaskP, &QComboBox::activated, myLineEditP, &MyLineEdit::slotFileMode);
+	connect(cbxStartTimerP, &QCheckBox::checkStateChanged, this, &Main_Wgt::slotTimerControl);
 	connect(myLineEditP, &MyLineEdit::signPath, this, &Main_Wgt::slotSetFilePath);
 	connect(ledMaskValueP, &QLineEdit::textChanged, this, &Main_Wgt::slotCheckRange);
 	connect(btnConfirmMaskP, &QPushButton::clicked, this, &Main_Wgt::slotWriteMask);
 	connect(btnModifyFileP, &QPushButton::clicked, this, &Main_Wgt::slotModifyFile);
+
+	timerFindFileP->setInterval(8000);
+	connect(timerFindFileP, &QTimer::timeout, this, &Main_Wgt::slotModifyFile);
+	timerModifyStatusP->setInterval(2000);
+	connect(timerModifyStatusP, &QTimer::timeout, this, &Main_Wgt::slotColorFile);
 }
 
 Main_Wgt::~Main_Wgt()
@@ -175,6 +191,33 @@ void Main_Wgt::slotModifyFile()
 			file.resize(0);
 			file.write(bAr);
 			file.close();
+
+			btnModifyFileP->setStyleSheet("background-color: YellowGreen");
+			timerModifyStatusP->start();
 		}
 	}
+	else
+	{
+		btnModifyFileP->setStyleSheet("background-color: Crimson");
+		timerModifyStatusP->start();
+	}
+}
+
+void Main_Wgt::slotTimerControl()
+{
+	if(cbxStartTimerP->isChecked())
+	{
+		timerFindFileP->start();
+	}
+	else
+	{
+		timerFindFileP->stop();
+	}
+}
+
+void Main_Wgt::slotColorFile()
+{
+	btnModifyFileP->setText("Modify");
+	btnModifyFileP->setStyleSheet("background-color: Gainsboro");
+	timerModifyStatusP->stop();
 }
