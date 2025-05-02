@@ -4,7 +4,9 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QLabel>
+#include <QMap>
 #include <QPushButton>
+#include <QString>
 #include <QTimer>
 #include <QWidget>
 
@@ -15,6 +17,7 @@ class Main_Wgt : public QWidget
 	Q_OBJECT
 private:
 	uint8_t mask = 0;
+	QMap<QString, uint8_t> mapFileNames;
 	QTimer *timerFindFileP = new QTimer(this);
 
 protected:
@@ -23,6 +26,8 @@ protected:
 	QComboBox* cmbboxFileMaskP;
 	QLabel* lblDeleteFileP;
 	QCheckBox* cbxDeleteFileP;
+	QLabel* lblModifyFileNameP;
+	QCheckBox* cbxModifyFileNameP;
 	// layout 2:
 	QLabel* lblMaskTitleP;
 	QLineEdit* ledMaskValueP;

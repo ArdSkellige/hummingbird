@@ -19,11 +19,16 @@ Main_Wgt::Main_Wgt(QWidget* parent) : QWidget(parent)
 		lblDeleteFileP = createQLabel("Delete file");
 		cbxDeleteFileP = new QCheckBox();
 		cbxDeleteFileP->setChecked(false);
+		lblModifyFileNameP = createQLabel("Modify file Name");
+		cbxModifyFileNameP = new QCheckBox();
+		cbxModifyFileNameP->setChecked(false);
 
 		hblayP->addWidget(lblMaskP);
 		hblayP->addWidget(cmbboxFileMaskP);
 		hblayP->addWidget(lblDeleteFileP);
 		hblayP->addWidget(cbxDeleteFileP);
+		hblayP->addWidget(lblModifyFileNameP);
+		hblayP->addWidget(cbxModifyFileNameP);
 		vblayMainP->addLayout(hblayP);
 	}
 	{// layout 2:
@@ -120,7 +125,6 @@ void Main_Wgt::slotModifyFile()
 {
 	QByteArray bAr;
 	QFile file(myLineEditP->text());
-	qDebug() << "FILE NAME is " << file.fileName();
 	if(file.open(QIODevice::ReadWrite))
 	{
 		bAr = file.readAll();
@@ -129,10 +133,36 @@ void Main_Wgt::slotModifyFile()
 			bAr[i] = bAr[i] ^ mask;
 		}
 
+		if(cbxModifyFileNameP->isChecked())
+		{
+			file.close();
+			
+			QString fileName = file.fileName();
+			auto iter = mapFileNames.find(fileName);
+			if(iter != mapFileNames.end()) // such file already exists
+			{
+				iter.value() = iter.value() + 1;
+			}
+			else
+			{
+				mapFileNames.insert(fileName, 2);
+				iter = mapFileNames.find(fileName);
+				qDebug() << "iter.value() = " << iter.value();
+			}
+
+			for(size_t i = 0; i < 4; i++)
+			{
+				fileName.removeLast();
+			}
+			fileName.append(QString::number(iter.value()) + cmbboxFileMaskP->currentText());
+			file.setFileName(fileName);
+			file.open(QIODevice::ReadWrite);
+		}
+
 		if(cbxDeleteFileP->isChecked())
 		{
 			file.remove();
-			QFile fileNew(QFileDialog::getSaveFileName(this, "Name file", "byteArray_list", "*.txt;; *.bin")); // save changed byteAr in file
+			QFile fileNew(QFileDialog::getSaveFileName(this, "Name file", "test", "*.txt;; *.bin")); // save changed byteAr in file
 			if(fileNew.open(QIODevice::ReadWrite))
 			{
 				fileNew.resize(0);
